@@ -1,10 +1,10 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "files": {
     "config.py": "43fe9fa1b1398b5673605dca7172bf179e2f030e60e7a23ec3671283e14d412e",
     "controller.py": "54546cac12f2453530ed41d35415660b991ab3f0c584829de8fc16c0e338a6a2",
     "drv887x.py": "253a6f2f3a1fc7d268204c47008d25effbeffc5f5b3cc5e11700646d1e84ad80",
-    "main.py": "5047f94cf07c1c7952786af0cbb745ab19c3a8143dedbf57f2c734b467a93e2c",
+    "main.py": "af483dabc02a8b1262ef7e5539ffe10ef88ba58237bd042c8b67a6d2ca7d43bf",
     "mcp23017.py": "13f773bac20cc82ad469352caafd6e7dc5ba9d8f980d8e25d3a505fdf5163cd6",
     "rs485.py": "38395e2c1b0240f70fc70617dcead9afb0c1e45818961844cb4739faab1d5e59"
   }
