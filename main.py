@@ -1,70 +1,25 @@
-# main.py
-import time
-import machine
+import wifi
+import ota
+import controller
 import rs485
-import mcp23017
-from controller import Controller
-from wifi import wifi_connect
-from ota import ota_update
-from config import CONFIG, debug
+import time
 
-VERSION_FILE = "version.json"
+print("[DBG] [MAIN] Arranque do sistema...")
 
-# ------------------------------------------------------------
-# Ler versão atual
-# ------------------------------------------------------------
-def get_local_version():
-    try:
-        import ujson
-        with open(VERSION_FILE, "r") as f:
-            data = ujson.load(f)
-            return data.get("version", "0.0.0")
-    except:
-        return "0.0.0"
+print("[DBG] [MAIN] Tentativa de ligação WiFi...")
+wifi.connect()
 
+print("[DBG] [MAIN] WiFi OK → verificar OTA")
+ota.check_update()   # Se houver update, reinicia automaticamente
 
-# ------------------------------------------------------------
-# Arranque principal
-# ------------------------------------------------------------
-debug("[MAIN] Arranque do sistema...")
+print("[DBG] [MAIN] Nenhuma atualização pendente. Continuar.")
 
-# Tentativa WiFi
-debug("[MAIN] Tentativa de ligação WiFi...")
-ip = wifi_connect(timeout_ms=20000)
+# Iniciar RS485 / controller
+rs485.init()
+ctrl = controller.Controller()
 
-if ip:
-    debug("[MAIN] WiFi OK → verificar OTA")
-    ota_update()
-else:
-    debug("[MAIN] Sem WiFi — iniciar modo normal")
+print("[DBG] Sistema iniciado sem OTA.")
 
-# Heartbeat inicial com versão
-ver = get_local_version()
-rs485.set_tx()
-rs485.send(f"HB-START,ADDR:0,VER:{ver}")
-rs485.set_rx()
-debug("[MAIN] HB inicial enviado")
-
-# Iniciar controlador
-c = Controller()
-
-# ------------------------------------------------------------
-# Loop principal
-# ------------------------------------------------------------
 while True:
-    # Loop único do controlador
-    c.loop_once()
-
-    # Verificar comandos RS485
-    for line in rs485.read_lines():
-
-        # Comando de OTA forçada
-        if line.upper().startswith("ADDR:128 OTA"):
-            debug("[MAIN] OTA forçada via RS485")
-            ip = wifi_connect(timeout_ms=60000)
-            if ip:
-                ota_update()
-            else:
-                debug("[MAIN] WiFi falhou para OTA via RS485")
-
-    time.sleep_ms(CONFIG["RS485_POLL_MS"])
+    ctrl.loop_once()
+    time.sleep_ms(20)
